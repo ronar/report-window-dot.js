@@ -1,0 +1,2148 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>title</title>
+		<meta name=viewport content="width=device-width, initial-scale=1">
+		<!-- Add jQuery library -->
+		<!--<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script> -->
+		<link rel="stylesheet" href="css/jquery-ui.css">
+		<script type="text/javascript" src="js/jquery-latest.min.js"></script>
+		<script type="text/javascript" src="js/jquery-ui.js"></script>
+
+		<script type="text/javascript" src="js/script.js"></script>
+
+		<!-- Add css style -->
+		<link rel="stylesheet" href="css/normalize.css" type="text/css" />
+		<link rel="stylesheet" href="css/style.css" type="text/css" media="screen" />
+
+		<!-- styles needed by jScrollPane -->
+		<link type="text/css" href="css/jquery.jscrollpane.css" rel="stylesheet" media="all" />
+
+		<!-- the mousewheel plugin - optional to provide mousewheel support -->
+		<script type="text/javascript" src="js/jquery.mousewheel.js"></script>
+
+		<!-- the jScrollPane script -->
+		<script type="text/javascript" src="js/jquery.jscrollpane.min.js"></script>
+
+		<script type="text/javascript" src="js/doT.min.js"></script>
+
+		<script id="testparam" type="text/x-dot-template">
+			{{##def.testParamDef:myparam:
+			My name is: {{=myparam}}
+			#}}
+
+			{{#def.testParamDef:it.name}}
+		</script>
+
+		<script id="wrappertemp" type="text/x-dot-template">
+
+			{{##def.windowtitle:
+				<div class="window-title">
+					<span class="window-title-left"></span><span class="window-title-right"><div class="btn btn-cls"></div><div class="btn btn-rep"></div></span>
+					<h1>Военный отчет - <span class="city-pic city-pic{{=it.battle_city_pic}}"></span>{{=it.battle_city_name}}</h1>
+				</div>
+			#}}
+
+			{{##def.accomdata:
+				<div class="accom-data">
+					<span class="accom-data-left"></span><span class="accom-data-right"><span style="float: right; margin-top: 8px; margin-right: 15px;">Время:{{=it.battle_time}}</span></span>
+					<div style="z-index: 5; height: 55px; margin-top: 8px;">
+						<div style="margin-bottom: 5px; margin-left: 15px;"><span style="margin-right: 27px;">Чей:</span><span><span class="city-gov-pic city-gov-pic{{=it.gov_pic}}"></span><a href="#">{{=it.gov_name}}</a> (<a href="#">{{=it.battle_country}}</a>)</span></div>
+						<div  style="margin-left: 15px;"><span style="margin-right: 15px;">Тема:</span><span><span class="city-pic city-pic{{=it.assault_city_pic}}"></span>{{=it.assault_city_name}} (<span class="city-gov-pic city-gov-pic{{=it.assault_gov_pic}}"></span>{{=it.assault_gov_name}}) напал на <span class="city-pic city-pic{{=it.battle_city_pic}}"></span>{{=it.battle_city_name}} (<span class="city-gov-pic city-gov-pic{{=it.gov_pic}}"></span>{{=it.gov_name}})</span></div>
+					</div>
+				</div>
+			#}}
+
+			{{##def.defcityinfo:
+				<div class="def-city-info">
+					<div class="disp-inline-b" style="text-align: right; margin-right: 3px;">
+						<div><div class="city-pic city-pic{{=it.battle_city_pic}}"></div></div>
+						<div><div class="city-gov-pic city-gov-pic{{=it.gov_pic}}"></div></div>
+						<div><div class="country-flag country-flag{{=it.battle_country_flag}}"></div></div>
+					</div>
+					<div class="disp-inline-b">
+						<div><a href="#">{{=it.battle_city_name}}</a></div>
+						<div><a href="#">{{=it.gov_name}}</a></div>
+						<div><a href="#">{{=it.battle_country}}</a></div>
+					</div>
+				</div>
+			#}}
+
+			{{##def.atkcityinfo:
+				<div class="atk-city-info">
+					<div class="disp-inline-b" style="text-align: right; margin-right: 3px;">
+						<div><div class="city-pic city-pic{{=it.assault_city_pic}}"></div></div>
+						<div><div class="city-gov-pic city-gov-pic{{=it.assault_gov_pic}}"></div></div>
+						<div><div class="country-flag country-flag{{=it.assault_country_flag}}"></div></div>
+					</div>
+					<div class="disp-inline-b" style="">
+						<div><a href="#">{{=it.assault_city_name}}</a></div>
+						<div><a href="#">{{=it.assault_gov_name}}</a></div>
+						<div><a href="#">{{=it.assault_country}}</a></div>
+					</div>
+				</div>
+			#}}
+
+			{{##def.alldefarmyheader:
+				<h2>Вся армия защиты - 
+					{{? it.def_status === "Победа"}}
+						<span class="text-victory">Победа</span>
+					{{??}}
+						<span class="text-defeat">Поражение</span>
+					{{?}}
+				</h2>
+			#}}
+
+			{{##def.allatkarmyheader:
+				<h2>Вся армия нападения - 
+					{{? it.atk_status === "Победа"}}
+						<span class="text-victory">Победа</span>
+					{{??}}
+						<span class="text-defeat">Поражение</span>
+					{{?}}
+				</h2>
+			#}}
+
+
+			{{##def.defarmysuminfo:
+				<div class="def-army-sum-info">
+					{{? it.def_cities.length > 0 }}
+						{{? it.def_cities[0].army.assault.length > 0 }}
+							<div class="disp-inline-b" style="margin-left: 0px;">
+								<div class="unit-type-title">
+									Атака
+								</div>
+							</div>
+							<div class="units-blk disp-inline-b">
+								<ul class="units assault">
+									{{? it.def_cities.length > 0 }}
+										{{ for(var i=0; i < it.def_cities[0].army.assault.length; i++) {
+										}}
+											<li><div class="unit-pic unit{{=it.def_cities[0].army.assault[i].unit_num}}"></div><div class="unit-amt">{{=it.def_cities[0].army.assault[i].num_units}}</div></li>
+										{{ } }}
+									{{?}}
+								</ul>
+							</div>
+						{{?}}
+						{{? it.def_cities[0].army.archers.length > 0 }}
+							<div class="disp-inline-b" style="margin-left: 0px;">
+								<div class="unit-type-title">
+									Стрелки
+								</div>
+							</div>
+							<div class="units-blk disp-inline-b">
+								<ul class="units archers">
+									{{? it.def_cities.length > 0 }}
+										{{ for(var i=0; i < it.def_cities[0].army.archers.length; i++) {
+										}}
+											<li><div class="unit-pic unit{{=it.def_cities[0].army.archers[i].unit_num}}"></div><div class="unit-amt">{{=it.def_cities[0].army.archers[i].num_units}}</div></li>
+										{{ } }}
+									{{?}}
+								</ul>
+							</div>
+						{{?}}
+						{{? it.def_cities[0].army.cavalry.length > 0 }}
+							<div class="disp-inline-b" style="margin-left: 0px;">
+								<div class="unit-type-title">
+									Конница
+								</div>
+							</div>
+							<div class="units-blk disp-inline-b">
+								<ul class="units cavalry">
+									{{? it.def_cities.length > 0 }}
+										{{ for(var i=0; i < it.def_cities[0].army.cavalry.length; i++) {
+										}}
+											<li><div class="unit-pic unit{{=it.def_cities[0].army.cavalry[i].unit_num}}"></div><div class="unit-amt">{{=it.def_cities[0].army.cavalry[i].num_units}}</div></li>
+										{{ } }}
+									{{?}}
+								</ul>
+							</div>
+						{{?}}
+					{{?}}
+				</div> <!-- /def-army-sum-info -->
+			#}}
+
+			{{##def.defarmysuminfooverflow:
+				<div class="def-army-sum-info-overflow">
+					<ul class="units">
+						{{? it.def_cities.length > 0 }}
+							{{ for(var c=0; c < it.def_cities.length; c++) {
+							}}
+								{{ for(var i=0; i < it.def_cities[c].army.assault.length; i++) {
+								}}
+									<li><div class="unit-pic unit{{=it.def_cities[c].army.assault[i].unit_num}}"></div><div class="unit-amt">{{=it.def_cities[c].army.assault[i].num_units}}</div></li>
+								{{ } }}
+
+								{{ for(var i=0; i < it.def_cities[c].army.archers.length; i++) {
+								}}
+									<li><div class="unit-pic unit{{=it.def_cities[c].army.archers[i].unit_num}}"></div><div class="unit-amt">{{=it.def_cities[c].army.archers[i].num_units}}</div></li>
+								{{ } }}
+
+								{{ for(var i=0; i < it.def_cities[c].army.cavalry.length; i++) {
+								}}
+									<li><div class="unit-pic unit{{=it.def_cities[c].army.cavalry[i].unit_num}}"></div><div class="unit-amt">{{=it.def_cities[c].army.cavalry[i].num_units}}</div></li>
+								{{ } }}
+							{{ } }}
+						{{?}}
+					</ul>
+					<div class="bot-shadow"></div>
+				</div>
+				<div class="def-spoiler-opener">
+					+ <div class="man-pic"></div>
+					{{ for(var c=0,n = 0; c < it.def_cities.length; c++) {
+						n += it.def_cities[c].num_troops;
+					}}
+					{{ } }}
+					{{=n}}
+				</div>
+				<div class="def-ontop">
+					^
+				</div>
+			#}}
+
+			{{##def.atkarmysuminfo:
+				<div class="atk-army-sum-info">
+					{{? it.atk_cities.length > 0 }}
+						{{? it.atk_cities[0].army.assault.length > 0 }}
+							<div class="disp-inline-b" style="margin-left: 0px;">
+								<div class="unit-type-title">
+									Атака
+								</div>
+							</div>
+							<div class="units-blk disp-inline-b">
+								<ul class="units assault">
+									{{ for(var i=0; i < it.atk_cities[0].army.assault.length; i++) {
+									}}
+										<li><div class="unit-pic unit{{=it.atk_cities[0].army.assault[i].unit_num}}"></div><div class="unit-amt">{{=it.atk_cities[0].army.assault[i].num_units}}</div></li>
+									{{ } }}
+								</ul>
+							</div>
+						{{?}}
+						{{? it.atk_cities[0].army.archers.length > 0}}
+							<div class="disp-inline-b" style="margin-left: 0px;">
+								<div class="unit-type-title">
+									Стрелки
+								</div>
+							</div>
+							<div class="units-blk disp-inline-b">
+								<ul class="units archers">
+									{{ for(var i=0; i < it.atk_cities[0].army.archers.length; i++) {
+									}}
+										<li><div class="unit-pic unit{{=it.atk_cities[0].army.archers[i].unit_num}}"></div><div class="unit-amt">{{=it.atk_cities[0].army.archers[i].num_units}}</div></li>
+									{{ } }}
+								</ul>
+							</div>
+						{{?}}
+						{{? it.atk_cities[0].army.cavalry.length > 0}}
+							<div class="disp-inline-b" style="margin-left: 0px;">
+								<div class="unit-type-title">
+									Конница
+								</div>
+							</div>
+							<div class="units-blk disp-inline-b">
+								<ul class="units cavalry">
+									{{ for(var i=0; i < it.atk_cities[0].army.cavalry.length; i++) {
+									}}
+										<li><div class="unit-pic unit{{=it.atk_cities[0].army.cavalry[i].unit_num}}"></div><div class="unit-amt">{{=it.atk_cities[0].army.cavalry[i].num_units}}</div></li>
+									{{ } }}
+								</ul>
+							</div>
+						{{?}}
+					{{?}}
+				</div> <!-- /def-army-sum-info -->
+			#}}
+
+			{{##def.atkarmysuminfooverflow:
+				<div class="atk-army-sum-info-overflow">
+					<ul class="units">
+						{{? it.atk_cities.length > 0 }}
+							{{ for(var c=0; c < it.atk_cities.length; c++) {
+							}}
+								{{ for(var i=0; i < it.atk_cities[c].army.assault.length; i++) {
+								}}
+									<li><div class="unit-pic unit{{=it.atk_cities[c].army.assault[i].unit_num}}"></div><div class="unit-amt">{{=it.atk_cities[c].army.assault[i].num_units}}</div></li>
+								{{ } }}
+
+								{{ for(var i=0; i < it.atk_cities[c].army.archers.length; i++) {
+								}}
+									<li><div class="unit-pic unit{{=it.atk_cities[c].army.archers[i].unit_num}}"></div><div class="unit-amt">{{=it.atk_cities[c].army.archers[i].num_units}}</div></li>
+								{{ } }}
+
+								{{ for(var i=0; i < it.atk_cities[c].army.cavalry.length; i++) {
+								}}
+									<li><div class="unit-pic unit{{=it.atk_cities[c].army.cavalry[i].unit_num}}"></div><div class="unit-amt">{{=it.atk_cities[c].army.cavalry[i].num_units}}</div></li>
+								{{ } }}
+							{{ } }}
+						{{?}}
+					</ul>
+					<div class="bot-shadow"></div>
+				</div>
+				<div class="atk-spoiler-opener">
+					+ <div class="man-pic"></div>
+					{{ for(var c=0,n = 0; c < it.atk_cities.length; c++) {
+						n += it.atk_cities[c].num_troops;
+					}}
+					{{ } }}
+					{{=n}}
+				</div>
+				<div class="atk-ontop">
+					^
+				</div>
+			#}}
+
+			{{##def.fallenblock:
+				<h2>Погибшие</h2>
+				<div class="def-flln-sum-info">
+					{{? it.def_cities.length > 0}}
+						{{? it.def_cities[0].fallen.assault.length > 0}}
+							<div class="disp-inline-b" style="margin-left: 0px;">
+								<div class="unit-type-title">
+									Атака
+								</div>
+							</div>
+							<div class="units-blk disp-inline-b">
+								<ul class="units assault">
+									{{? it.def_cities.length > 0 }}
+										{{ for(var i=0; i < it.def_cities[0].fallen.assault.length; i++) {
+										}}
+											<li><div class="unit-pic unit{{=it.def_cities[0].fallen.assault[i].unit_num}}"></div><div class="unit-amt">{{=it.def_cities[0].fallen.assault[i].num_units}}</div></li>
+										{{ } }}
+									{{?}}
+								</ul>
+
+							</div>
+						{{?}}
+						{{? it.def_cities[0].fallen.archers.length > 0}}
+							<div class="disp-inline-b" style="margin-left: 0px;">
+								<div class="unit-type-title">
+									Стрелки
+								</div>
+							</div>
+							<div class="units-blk disp-inline-b">
+								<ul class="units archers">
+									{{? it.def_cities.length > 0 }}
+										{{ for(var i=0; i < it.def_cities[0].fallen.archers.length; i++) {
+										}}
+											<li><div class="unit-pic unit{{=it.def_cities[0].fallen.archers[i].unit_num}}"></div><div class="unit-amt">{{=it.def_cities[0].fallen.archers[i].num_units}}</div></li>
+										{{ } }}
+									{{?}}
+								</ul>
+							</div>
+						{{?}}
+						{{? it.def_cities[0].fallen.cavalry.length > 0}}
+							<div class="disp-inline-b" style="margin-left: 0px;">
+								<div class="unit-type-title">
+									Конница
+								</div>
+							</div>
+							<div class="units-blk disp-inline-b">
+								<ul class="units cavalry">
+									{{? it.def_cities.length > 0 }}
+										{{ for(var i=0; i < it.def_cities[0].fallen.cavalry.length; i++) {
+										}}
+											<li><div class="unit-pic unit{{=it.def_cities[0].fallen.cavalry[i].unit_num}}"></div><div class="unit-amt">{{=it.def_cities[0].fallen.cavalry[i].num_units}}</div></li>
+										{{ } }}
+									{{?}}
+								</ul>
+							</div>
+						{{?}}
+					{{?}}
+				</div> <!-- /def-flln-sum-info -->
+			#}}
+
+			{{##def.survivedblock:
+				<h2>Выжившие</h2>
+				<div class="def-surv-sum-info" style="position: relative;">
+					{{? it.def_cities.length > 0}}
+						{{? it.def_cities[0].survived.assault.length > 0}}
+							<div class="disp-inline-b" style="margin-left: 0px;">
+								<div class="unit-type-title">
+									Атака
+								</div>
+							</div>
+							<div class="units-blk disp-inline-b">
+								<ul class="units assault">
+									{{? it.def_cities.length > 0 }}
+										{{ for(var i=0; i < it.def_cities[0].survived.assault.length; i++) {
+										}}
+											<li><div class="unit-pic unit{{=it.def_cities[0].survived.assault[i].unit_num}}"></div><div class="unit-amt">{{=it.def_cities[0].survived.assault[i].num_units}}</div></li>
+										{{ } }}
+									{{?}}
+								</ul>
+							</div>
+						{{?}}
+						{{? it.def_cities[0].survived.archers.length > 0}}
+							<div class="disp-inline-b" style="margin-left: 0px;">
+								<div class="unit-type-title">
+									Стрелки
+								</div>
+							</div>
+							<div class="units-blk disp-inline-b">
+								<ul class="units archers">
+									{{? it.def_cities.length > 0 }}
+										{{ for(var i=0; i < it.def_cities[0].survived.archers.length; i++) {
+										}}
+											<li><div class="unit-pic unit{{=it.def_cities[0].survived.archers[i].unit_num}}"></div><div class="unit-amt">{{=it.def_cities[0].survived.archers[i].num_units}}</div></li>
+										{{ } }}
+									{{?}}
+								</ul>
+							</div>
+						{{?}}
+						{{? it.def_cities[0].survived.cavalry.length > 0}}
+							<div class="disp-inline-b" style="margin-left: 0px;">
+								<div class="unit-type-title">
+									Конница
+								</div>
+							</div>
+							<div class="units-blk disp-inline-b">
+								<ul class="units cavalry">
+									{{? it.def_cities.length > 0 }}
+										{{ for(var i=0; i < it.def_cities[0].survived.cavalry.length; i++) {
+										}}
+											<li><div class="unit-pic unit{{=it.def_cities[0].survived.cavalry[i].unit_num}}"></div><div class="unit-amt">{{=it.def_cities[0].survived.cavalry[i].num_units}}</div></li>
+										{{ } }}
+									{{?}}
+								</ul>
+							</div>
+						{{?}}
+					{{?}}
+				</div> <!-- /def-surv-sum-info -->
+			#}}
+
+			{{##def.destructionsblock:
+				<h2>Разрушения</h2>
+				<ul class="destructions">
+					{{ for(var i=0; i < it.destructions.length; i++) {
+					}}
+					<li>
+						<div class="destr-bldng-wrapper"><div class="destr-bldng {{=it.destructions[i].bld_name}}"></div></div>
+						<div style="float: right; margin: 10px;">
+							{{=it.destructions[i].bld_title}}
+							<br>
+							{{? it.destructions[i].dmg === "Разрушено"}}
+								<span style="color: #d40000;">{{=it.destructions[i].dmg}}</span>
+							{{??}}
+								{{=it.destructions[i].dmg}}
+							{{?}}
+						</div>
+					</li>
+					{{ } }}
+				</ul>
+			#}}
+
+			{{##def.robbedblock:
+				<h2>Награблено</h2>
+				<ul class="mats">
+					{{ for(var i=0; i < it.robbed.length; i++) {
+					}}
+					<li>
+						<div class="res-pic res{{=it.robbed[i].res_name}}"></div>
+						<div class="res-amt">{{=it.robbed[i].res_nums}}</div>
+					</li>
+					{{ } }}
+				</ul>
+			#}}
+
+			{{##def.defboardtooltip:
+				<div class='tooltip'>
+					{{? it.def_cities.length > 0 }}
+						<div style='text-align: center; margin-bottom: 5px;'>Военный бонус: {{=it.def_cities[i].battle_rate}}%</div>
+							<ul class='units'>
+							{{ for(var j=0; j < it.def_cities[i].army.assault.length; j++) {
+							}}
+								<li><div class='unit-pic unit{{=it.def_cities[i].army.assault[j].unit_num}}'></div><div class='unit-amt'>{{=it.def_cities[i].army.assault[j].num_units}}</div></li>
+							{{ } }}
+
+							{{ for(var j=0; j < it.def_cities[i].army.archers.length; j++) {
+							}}
+								<li><div class='unit-pic unit{{=it.def_cities[i].army.archers[j].unit_num}}'></div><div class='unit-amt'>{{=it.def_cities[i].army.archers[j].num_units}}</div></li>
+							{{ } }}
+
+							{{ for(var j=0; j < it.def_cities[i].army.cavalry.length; j++) {
+							}}
+								<li><div class='unit-pic unit{{=it.def_cities[i].army.cavalry[j].unit_num}}'></div><div class='unit-amt'>{{=it.def_cities[i].army.cavalry[j].num_units}}</div></li>
+							{{ } }}
+							</ul>
+						<div style='text-align: center;'><a id='defbdetails{{=i}}' class='bdetails' href='#'>Нажми для подробностей</a></div>
+					{{?}}
+				</div>
+			#}}
+
+			{{##def.atkboardtooltip:
+				<div class='tooltip'>
+					{{? it.atk_cities.length > 0 }}
+						<div style='text-align: center; margin-bottom: 5px;'>Военный бонус: {{=it.atk_cities[i].battle_rate}}%</div>
+							<ul class='units'>
+							{{ for(var j=0; j < it.atk_cities[i].army.assault.length; j++) {
+							}}
+								<li><div class='unit-pic unit{{=it.atk_cities[i].army.assault[j].unit_num}}'></div><div class='unit-amt'>{{=it.atk_cities[i].army.assault[j].num_units}}</div></li>
+							{{ } }}
+
+							{{ for(var j=0; j < it.atk_cities[i].army.archers.length; j++) {
+							}}
+								<li><div class='unit-pic unit{{=it.atk_cities[i].army.archers[j].unit_num}}'></div><div class='unit-amt'>{{=it.atk_cities[i].army.archers[j].num_units}}</div></li>
+							{{ } }}
+
+							{{ for(var j=0; j < it.atk_cities[i].army.cavalry.length; j++) {
+							}}
+								<li><div class='unit-pic unit{{=it.atk_cities[i].army.cavalry[j].unit_num}}'></div><div class='unit-amt'>{{=it.atk_cities[i].army.cavalry[j].num_units}}</div></li>
+							{{ } }}
+							</ul>
+						<div style='text-align: center;'><a id='atkbdetails{{=i}}' class='bdetails' href='#'>Нажми для подробностей</a></div>
+					{{?}}
+				</div>
+			#}}
+
+			{{##def.defendersblock:
+				<h2>Защитники</h2>
+				<div class="defenders-wrapper">
+					<ul class="defenders">
+						{{ for(var i=0; i < it.def_cities.length; i++) {
+						}}
+							<li>
+								<div id="def{{=i}}" class="participant-piece" title="{{#def.defboardtooltip}}">
+									{{? it.def_cities[i].flag !== 0}}
+										<div class="country-flag country-flag{{=it.def_cities[i].flag}}"></div>
+									{{?}}
+									<span class="city-pic city-pic{{=it.def_cities[i].city_pic}}"></span>{{=it.def_cities[i].city_name}} (<span class="city-gov-pic city-gov-pic{{=it.def_cities[i].gov_pic}}"></span>{{=it.def_cities[i].gov_name}}) - <span class="man-pic"></span>{{=it.def_cities[i].num_troops}}
+								</div>
+
+							</li>
+						{{ } }}
+					</ul>
+					<!-- <div class="bot-shadow"></div> -->
+				</div> <!-- /defenders-wrapper -->
+			#}}
+
+			{{##def.assailantsblock:
+				<h2>Нападающие</h2>
+				<div class="assailants-wrapper">
+					<ul class="assailants">
+						{{ for(var i=0; i < it.atk_cities.length; i++) {
+						}}
+							<li>
+								<div class="participant-piece" title="{{#def.atkboardtooltip}}">
+									{{? it.atk_cities[i].flag !== 0}}
+										<div class="country-flag country-flag{{=it.atk_cities[i].flag}}"></div>
+									{{?}}
+									<span class="city-pic city-pic{{=it.atk_cities[i].city_pic}}"></span>{{=it.atk_cities[i].city_name}} (<span class="city-gov-pic city-gov-pic{{=it.atk_cities[i].gov_pic}}"></span>{{=it.atk_cities[i].gov_name}}) - <span class="man-pic"></span>{{=it.atk_cities[i].num_troops}}
+								</div>
+
+							</li>
+						{{ } }}
+					</ul>
+				</div> <!-- /assailants-wrapper -->
+			#}}
+
+			{{##def.atkfallenblock:
+				<h2>Погибшие</h2>
+				<div class="atk-flln-sum-info">
+					{{? it.atk_cities.length > 0}}
+						{{? it.atk_cities[0].fallen.assault.length > 0}}
+							<div class="disp-inline-b" style="margin-left: 0px;">
+								<div class="unit-type-title">
+									Атака
+								</div>
+							</div>
+							<div class="units-blk disp-inline-b">
+								<ul class="units assault">
+									{{ for(var i=0; i < it.atk_cities[0].fallen.assault.length; i++) {
+									}}
+										<li><div class="unit-pic unit{{=it.atk_cities[0].fallen.assault[i].unit_num}}"></div><div class="unit-amt">{{=it.atk_cities[0].fallen.assault[i].num_units}}</div></li>
+									{{ } }}
+								</ul>
+							</div>
+						{{?}}
+						{{? it.atk_cities[0].fallen.archers.length > 0}}
+							<div class="disp-inline-b" style="margin-left: 0px;">
+								<div class="unit-type-title">
+									Стрелки
+								</div>
+							</div>
+							<div class="units-blk disp-inline-b">
+								<ul class="units archers">
+									{{ for(var i=0; i < it.atk_cities[0].fallen.archers.length; i++) {
+									}}
+										<li><div class="unit-pic unit{{=it.atk_cities[0].fallen.archers[i].unit_num}}"></div><div class="unit-amt">{{=it.atk_cities[0].fallen.archers[i].num_units}}</div></li>
+									{{ } }}
+								</ul>
+							</div>
+						{{?}}
+						{{? it.atk_cities[0].fallen.cavalry.length > 0}}
+							<div class="disp-inline-b" style="margin-left: 0px;">
+								<div class="unit-type-title">
+									Конница
+								</div>
+							</div>
+							<div class="units-blk disp-inline-b">
+								<ul class="units cavalry">
+									{{ for(var i=0; i < it.atk_cities[0].fallen.cavalry.length; i++) {
+									}}
+										<li><div class="unit-pic unit{{=it.atk_cities[0].fallen.cavalry[i].unit_num}}"></div><div class="unit-amt">{{=it.atk_cities[0].fallen.cavalry[i].num_units}}</div></li>
+									{{ } }}
+								</ul>
+							</div>
+						{{?}}
+					{{?}}
+				</div> <!-- /atk-flln-sum-info -->
+			#}}
+
+			{{##def.atksurvivedblock:
+				<h2>Выжившие</h2>
+				<div class="atk-surv-sum-info">
+					{{? it.atk_cities.length > 0}}
+						{{? it.atk_cities[0].survived.assault.length > 0}}
+							<div class="disp-inline-b" style="margin-left: 0px;">
+								<div class="unit-type-title">
+									Атака
+								</div>
+							</div>
+							<div class="units-blk disp-inline-b">
+								<ul class="units assault">
+									{{ for(var i=0; i < it.atk_cities[0].survived.assault.length; i++) {
+									}}
+										<li><div class="unit-pic unit{{=it.atk_cities[0].survived.assault[i].unit_num}}"></div><div class="unit-amt">{{=it.atk_cities[0].survived.assault[i].num_units}}</div></li>
+									{{ } }}
+								</ul>
+							</div>
+						{{?}}
+						{{? it.atk_cities[0].survived.archers.length > 0}}
+							<div class="disp-inline-b" style="margin-left: 0px;">
+								<div class="unit-type-title">
+									Стрелки
+								</div>
+							</div>
+							<div class="units-blk disp-inline-b">
+								<ul class="units archers">
+									{{ for(var i=0; i < it.atk_cities[0].survived.archers.length; i++) {
+									}}
+										<li><div class="unit-pic unit{{=it.atk_cities[0].survived.archers[i].unit_num}}"></div><div class="unit-amt">{{=it.atk_cities[0].survived.archers[i].num_units}}</div></li>
+									{{ } }}
+								</ul>
+							</div>
+						{{?}}
+						{{? it.atk_cities[0].survived.cavalry.length > 0}}
+							<div class="disp-inline-b" style="margin-left: 0px;">
+								<div class="unit-type-title">
+									Конница
+								</div>
+							</div>
+							<div class="units-blk disp-inline-b">
+								<ul class="units cavalry">
+									{{ for(var i=0; i < it.atk_cities[0].survived.cavalry.length; i++) {
+									}}
+										<li><div class="unit-pic unit{{=it.atk_cities[0].survived.cavalry[i].unit_num}}"></div><div class="unit-amt">{{=it.atk_cities[0].survived.cavalry[i].num_units}}</div></li>
+									{{ } }}
+								</ul>
+							</div>
+						{{?}}
+					{{?}}
+				</div> <!-- /atk-flln-sum-info -->
+			#}}
+
+			{{##def.windowbottom:
+
+				<div class="window-bottom">
+					<div class="window-bottom-left"></div><div class="window-bottom-right"></div>
+					<div class="window-bottom-over">
+						<div class="window-bottom-over-left"></div><div class="window-bottom-over-right"></div>
+					</div>
+					<div class="butts-bottom">
+						<div class="butt butt-gr disp-inline-b">
+							<a href="#">Посмотреть повтор боя</a>
+							<div class="butt-gr-right"></div>
+							<div class="butt-gr-left"></div>
+						</div>
+						<div class="butt butt-br disp-inline-b">
+							<a href="#">Добавить в архив</a>
+							<div class="butt-br-right"></div>
+							<div class="butt-br-left"></div>
+						</div>
+						<div class="butt butt-re disp-inline-b">
+							<a id="buttcls" href="#">Закрыть</a>
+							<div class="butt-re-right"></div>
+							<div class="butt-re-left"></div>
+						</div>
+					</div>
+				</div>
+			#}}
+
+
+			{{#def.windowtitle}}
+			{{#def.accomdata}}
+
+			<div class="faux-columns">
+				<div class="left-edge">
+				</div>
+				<div class="right-edge">
+				</div>
+				<div class="faux-column-left">
+
+					<div class="city">
+						<div class="def-img-wrapper">
+							<div class="def-img"></div>
+						</div>
+						{{#def.defcityinfo}}
+
+					</div> <!-- /city -->
+					<div class="def-army-sum">
+						{{#def.alldefarmyheader}}
+						<div style="position: relative; padding-right: 10px; padding-top: 5px; border-right: 1px solid #ac6120;">
+							{{? it.def_cities.length > 1 }}
+								{{#def.defarmysuminfooverflow}}
+								<div class="defenders-blk" style="margin-top: 123px;">
+									{{#def.defendersblock}}
+								</div> <!-- /defenders-blk -->
+								<div class="destructions-blk">
+									{{#def.destructionsblock}}
+								</div> <!-- /destructions -->
+								<div class="robbed-blk">
+									{{#def.robbedblock}}
+								</div> <!-- /robbed -->
+							{{??}}
+								<div>
+									{{#def.defarmysuminfo}}
+									<div class="fallen-blck">
+										{{#def.fallenblock}}
+									</div> <!-- /fallen-blck -->
+									<div class="sirvived-blck">
+										{{#def.survivedblock}}
+									</div> <!-- /sirvived-blck -->
+								</div>
+							{{?}}
+						</div> <!-- /border-right -->
+					</div> <!-- /def-army-sum -->
+				</div> <!-- /faux-column-left -->
+				<div class="faux-column-right">
+					<div style="clear: both;"></div>
+					<div class="city">
+						<div class="atk-img-wrapper">
+							<div class="atk-img"></div>
+						</div>
+						{{#def.atkcityinfo}}
+					</div> <!-- /city -->
+					<div class="atk-army-sum">
+						{{#def.allatkarmyheader}}
+						<div style="position: relative; padding-left: 10px; padding-top: 5px;">
+							{{? it.atk_cities.length > 1 }}
+								{{#def.atkarmysuminfooverflow}}
+								<div class="assailants-blk" style="margin-top: 123px;">
+									{{#def.assailantsblock}}
+								</div> <!-- /assailants-blk -->
+							{{??}}
+								{{#def.atkarmysuminfo}}
+								<div class="fallen-blk">
+									{{#def.atkfallenblock}}
+								</div> <!-- /fallen-blk -->
+								<div class="survived-blk">
+									{{#def.atksurvivedblock}}
+								</div> <!-- /survived -->
+							{{?}}
+						</div>
+					</div> <!-- /atk-army-sum -->
+				</div> <!-- faux-column-right -->
+			</div> <!-- /faux-colunms -->
+			{{#def.windowbottom}}
+		</script>
+
+		<script id="battledetails" type="text/x-dot-template">
+			{{##def.defarmysum:
+				<h2>Армия</h2>
+				<div class="def-army-sum-info">
+					<div class="disp-inline-b" style="margin-left: 0px;">
+						<div class="unit-type-title">
+							Атака
+						</div>
+					</div>
+					<div class="units-blk disp-inline-b">
+						<ul class="units assault">
+							<!-- unitstemp -->
+						</ul>
+					</div>
+
+					<div class="disp-inline-b" style="margin-left: 0px;">
+						<div class="unit-type-title">
+							Стрелки
+						</div>
+					</div>
+					<div class="units-blk disp-inline-b">
+						<ul class="units archers">
+							<!-- unitstemp -->
+						</ul>
+					</div>
+					<div class="disp-inline-b" style="margin-left: 0px;">
+						<div class="unit-type-title">
+							Конница
+						</div>
+					</div>
+					<div class="units-blk disp-inline-b">
+						<ul class="units cavalry">
+							<!-- unitstemp -->
+						</ul>
+					</div>
+				</div> <!-- /def-army-sum-info -->
+			#}}
+
+			{{##def.deffllnsum:
+				<h2>Погибшие</h2>
+				<div class="def-flln-sum-info">
+					<div class="disp-inline-b" style="margin-left: 0px;">
+						<div class="unit-type-title disp-inline-b">
+							Атака
+						</div>
+					</div>
+					<div class="units-blk disp-inline-b">
+						<ul class="units assault">
+							<!-- unitstemp -->
+						</ul>
+
+					</div>
+					<div class="disp-inline-b" style="margin-left: 0px;">
+						<div class="unit-type-title disp-inline-b">
+							Стрелки
+						</div>
+					</div>
+					<div class="units-blk disp-inline-b">
+						<ul class="units archers">
+							<!-- unitstemp -->
+						</ul>
+
+					</div>
+					<div class="disp-inline-b" style="margin-left: 0px;">
+						<div class="unit-type-title disp-inline-b">
+							Конница
+						</div>
+					</div>
+					<div class="units-blk disp-inline-b">
+						<ul class="units cavalry">
+							<!-- unitstemp -->
+						</ul>
+
+					</div>
+				</div> <!-- /def-flln-sum-info -->
+			#}}
+
+			{{##def.defsurvsum:
+				<h2>Выжившие</h2>
+				<div class="def-surv-sum-info" style="position: relative;">
+					<div class="disp-inline-b" style="margin-left: 0px;">
+						<div class="unit-type-title disp-inline-b">
+							Атака
+						</div>
+					</div>
+					<div class="units-blk disp-inline-b">
+						<ul class="units assault">
+							<!-- unitstemp -->
+						</ul>
+					</div>
+					<div class="disp-inline-b" style="margin-left: 0px;">
+						<div class="unit-type-title disp-inline-b">
+							Стрелки
+						</div>
+					</div>
+					<div class="units-blk disp-inline-b">
+						<ul class="units archers">
+							<!-- unitstemp -->
+						</ul>
+
+					</div>
+					<div class="disp-inline-b" style="margin-left: 0px;">
+						<div class="unit-type-title disp-inline-b">
+							Конница
+						</div>
+					</div>
+					<div class="units-blk disp-inline-b">
+						<ul class="units cavalry">
+							<!-- unitstemp -->
+						</ul>
+
+					</div>
+				</div> <!-- /def-surv-sum-info -->
+
+			#}}
+
+			<div class="bd-window-title">
+
+			</div>
+
+			<div class="bd-content">
+				<div class="left-edge">
+				</div>
+				<div class="right-edge">
+				</div>
+				<div class="city-wrapper">
+
+				</div> <!-- /city-wrapper -->
+				<div class="def-army-sum">
+					{{#def.defarmysum}}
+
+				</div>
+				<div class="">
+					{{#def.deffllnsum}}
+				</div>
+
+				<div class="">
+					{{#def.defsurvsum}}
+				</div>
+				<div class="bd-window-bottom-left"></div><div class="bd-window-bottom-right"></div>
+			</div>
+			<div class="bd-window-bottom"></div>
+		</script>
+
+		<script id="unitstemp" type="text/x-dot-template">
+			{{ for(var i=0; i < it.length; i++) {
+			}}
+				<li><div class="unit-pic unit{{=it[i].unit_num}}"></div><div class="unit-amt">{{=it[i].num_units}}</div></li>
+			{{ } }}
+		</script>
+
+		<script id="windowtitletemp" type="text/x-dot-template">
+			<span class="bd-window-title-left"></span><span class="bd-window-title-right"><div class="btn btn-cls"></div></span>
+			<h1><span class="city-pic city-pic{{=it.city_pic}}"></span>{{=it.city_name}}</h1>
+		</script>
+
+		<script id="citytemp" type="text/x-dot-template">
+			<div class="city">
+				<div class="def-city-info" style="float: left;">
+					<div class="disp-inline-b" style="text-align: right; margin-right: 3px;">
+						<div><div class="city-gov-pic city-gov-pic{{=it.gov_pic}}"></div></div>
+						<div><div class="country-flag country-flag{{=it.flag}}"></div></div>
+					</div>
+					<div class="city-info disp-inline-b">
+						<div><a href="#">{{=it.gov_name}}</a></div>
+						<div><a href="#">{{=it.country}}</a></div>
+					</div>
+				</div>
+				<div class="def-img-wrapper" style="float: right;">
+					<div class="def-img"></div>
+				</div>
+			</div>
+			<h2>Военный бонус: {{=it.battle_rate}}%</h2>
+		</script>
+
+	</head>
+	<body>
+		<header>
+
+		</header>
+
+		<div class="overlay"></div>
+
+		<!-- Main content -->
+		<div id="wrapper">
+
+		</div> <!-- /wrapper -->
+
+		<div class="content"><br/><br/></div>
+
+		<div id="battle-details" style="display: none;">
+
+		</div> <!-- /battle-details -->
+
+		<div class="report-wnd" style="display: none;">
+			<div class="rw-window-title">
+				<div style="z-index: 4; width: 170px; left: 110px; position: absolute;"><h1>Доступ к отчету</h1></div>
+				<div class="rw-window-title-left"></div><div class="rw-window-title-right"><div class="btn btn-cls"></div></div>
+
+			</div>
+
+			<div class="rw-content">
+				<div class="left-edge">
+				</div>
+				<div class="right-edge">
+				</div>
+				<form>
+					<div style="text-align: center;">
+						<input type="textarea" size="4">
+					</div>
+					<p>Используй этот код в тексте для ссылки на этот отчет</p>
+					<input type="checkbox" name="open_access" value="oa1">Открыть доступ к отчету<br/>
+					<input type="checkbox" name="open_access" value="oa1" checked>Нападающие<br/>
+					<input type="checkbox" name="open_access" value="oa1" checked>Защищающиеся <br/>
+					<input type="checkbox" name="open_access" value="oa1" checked>Армия атаки<br/>
+					<input type="checkbox" name="open_access" value="oa1" checked>Армия защиты<br/>
+				</form>
+				<div class="butt butt-gr disp-inline-b" style="margin-left: 130px; width: 100px;">
+					<a href="#">Применить</a>
+					<div class="butt-gr-left"></div><div class="butt-gr-right"></div>
+				</div>
+			</div>
+
+
+			<div class="rw-window-bottom">
+				<div class="rw-window-bottom-left"></div><div class="rw-window-bottom-right"></div>
+			</div>
+		</div>
+
+	<script type="text/javascript">
+
+		var data = {
+			battle_city_name: "Майн",
+			battle_city_pic: 1,
+			gov_name: "Дюдю",
+			gov_pic: 1,
+			battle_country: "Катка",
+			battle_country_flag: 1,
+			battle_time: "22:20:31 24.03",
+			assault_city_name: "Теплый ламповый",
+			assault_city_pic: 4,
+			assault_gov_name: "Прод",
+			assault_gov_pic: 2,
+			assault_country: "Магазинчик",
+			assault_country_flag: 10,
+			def_status: "Поражение",
+			atk_status: "Победа",
+			def_cities: [
+			{ // Город 1
+				city_name: "Майн",
+				city_pic: 1,
+				country: "Катка",
+				flag: 1,
+				gov_name: "Дюдю",
+				gov_pic: 1,
+				num_troops: 6577, // общее количество армии
+				battle_rate: 1749, // военный рейтинг в %			
+				army: { // вся армия		
+					assault: [ // атака	
+						{unit_num: "1", num_units: "471"},
+						{unit_num: "12", num_units: "393"},
+						{unit_num: "33", num_units: "93"},
+						{unit_num: "34", num_units: "164"},
+						{unit_num: "43", num_units: "513"},
+						{unit_num: "58", num_units: "228"},
+						{unit_num: "13", num_units: "185"},
+						{unit_num: "53", num_units: "304"},
+						{unit_num: "31", num_units: "483"},
+						{unit_num: "4", num_units: "578"}
+					],	
+					archers: [ // стрелки	
+						{unit_num: "2", num_units: "79"},
+						{unit_num: "9", num_units: "525"},
+						{unit_num: "18", num_units: "251"},
+						{unit_num: "23", num_units: "392"},
+						{unit_num: "24", num_units: "299"},
+						{unit_num: "37", num_units: "347"},
+						{unit_num: "42", num_units: "355"},
+						{unit_num: "47", num_units: "566"},
+						{unit_num: "83", num_units: "223"}
+					],	
+					cavalry: [ // конница	
+						{unit_num: "14", num_units: "154"},
+						{unit_num: "17", num_units: "315"},
+						{unit_num: "52", num_units: "423"},
+						{unit_num: "3", num_units: "471"},
+						{unit_num: "29", num_units: "98"},
+						{unit_num: "5", num_units: "385"}
+				]	},	
+				fallen: { //погибшие		
+					assault: [ // атака	
+						{unit_num: "1", num_units: "443"},
+						{unit_num: "12", num_units: "338"},
+						{unit_num: "33", num_units: "80"},
+						{unit_num: "34", num_units: "156"},
+						{unit_num: "43", num_units: "487"},
+						{unit_num: "58", num_units: "228"},
+						{unit_num: "13", num_units: "148"},
+						{unit_num: "53", num_units: "268"},
+						{unit_num: "31", num_units: "425"},
+						{unit_num: "4", num_units: "509"}
+					],	
+					archers: [ // стрелки	
+						{unit_num: "2", num_units: "74"},
+						{unit_num: "9", num_units: "478"},
+						{unit_num: "18", num_units: "241"},
+						{unit_num: "23", num_units: "318"},
+						{unit_num: "24", num_units: "281"},
+						{unit_num: "37", num_units: "278"},
+						{unit_num: "42", num_units: "305"},
+						{unit_num: "47", num_units: "498"},
+						{unit_num: "83", num_units: "198"}
+					],	
+					cavalry: [ // конница	
+						{unit_num: "14", num_units: "132"},
+						{unit_num: "17", num_units: "252"},
+						{unit_num: "52", num_units: "406"},
+						{unit_num: "3", num_units: "377"},
+						{unit_num: "29", num_units: "97"},
+						{unit_num: "5", num_units: "316"}
+				]	},	
+				survived: { // выжившие		
+					assault: [ // атака	
+						{unit_num: "1", num_units: "28"},
+						{unit_num: "12", num_units: "55"},
+						{unit_num: "33", num_units: "13"},
+						{unit_num: "34", num_units: "8"},
+						{unit_num: "43", num_units: "26"},
+						{unit_num: "58", num_units: "0"},
+						{unit_num: "13", num_units: "37"},
+						{unit_num: "53", num_units: "36"},
+						{unit_num: "31", num_units: "58"},
+						{unit_num: "4", num_units: "69"}
+					],	
+					archers: [ // стрелки	
+						{unit_num: "2", num_units: "5"},
+						{unit_num: "9", num_units: "47"},
+						{unit_num: "18", num_units: "10"},
+						{unit_num: "23", num_units: "74"},
+						{unit_num: "24", num_units: "18"},
+						{unit_num: "37", num_units: "69"},
+						{unit_num: "42", num_units: "50"},
+						{unit_num: "47", num_units: "68"},
+						{unit_num: "83", num_units: "25"}
+					],	
+					cavalry: [ // конница	
+						{unit_num: "14", num_units: "22"},
+						{unit_num: "17", num_units: "63"},
+						{unit_num: "52", num_units: "17"},
+						{unit_num: "3", num_units: "94"},
+						{unit_num: "29", num_units: "1"},
+						{unit_num: "5", num_units: "69"}
+					]
+				}
+			},
+			{ // Город 2
+				city_name: "Биг сити",
+				city_pic: 2,
+				country: "Волшебная",
+				flag: 2,
+				gov_name: "Фин парнишка",
+				gov_pic: 2,
+				num_troops: 3355, // общее количество армии
+				battle_rate: 284, // военный рейтинг в %			
+				army: { // вся армия		
+					assault: [ // атака	
+						{unit_num: "1", num_units: "203"},
+						{unit_num: "12", num_units: "52"},
+						{unit_num: "33", num_units: "166"},
+						{unit_num: "34", num_units: "152"},
+						{unit_num: "43", num_units: "219"},
+						{unit_num: "58", num_units: "133"},
+						{unit_num: "13", num_units: "149"},
+						{unit_num: "53", num_units: "212"},
+						{unit_num: "31", num_units: "213"},
+						{unit_num: "4", num_units: "262"}
+					],	
+					archers: [ // стрелки	
+						{unit_num: "2", num_units: "31"},
+						{unit_num: "9", num_units: "136"},
+						{unit_num: "18", num_units: "102"},
+						{unit_num: "23", num_units: "17"},
+						{unit_num: "24", num_units: "150"},
+						{unit_num: "37", num_units: "80"},
+						{unit_num: "42", num_units: "153"},
+						{unit_num: "47", num_units: "198"},
+						{unit_num: "83", num_units: "290"}
+					],	
+					cavalry: [ // конница	
+						{unit_num: "14", num_units: "163"},
+						{unit_num: "17", num_units: "76"},
+						{unit_num: "52", num_units: "215"},
+						{unit_num: "3", num_units: "210"},
+						{unit_num: "29", num_units: "230"},
+						{unit_num: "5", num_units: "32"}
+					]
+				},	
+				fallen: { //погибшие		
+					assault: [ // атака	
+						{unit_num: "1", num_units: "12"},
+						{unit_num: "12", num_units: "5"},
+						{unit_num: "33", num_units: "10"},
+						{unit_num: "34", num_units: "9"},
+						{unit_num: "43", num_units: "0"},
+						{unit_num: "58", num_units: "4"},
+						{unit_num: "13", num_units: "15"},
+						{unit_num: "53", num_units: "6"},
+						{unit_num: "31", num_units: "0"},
+						{unit_num: "4", num_units: "26"}
+					],	
+					archers: [ // стрелки	
+						{unit_num: "2", num_units: "2"},
+						{unit_num: "9", num_units: "14"},
+						{unit_num: "18", num_units: "9"},
+						{unit_num: "23", num_units: "1"},
+						{unit_num: "24", num_units: "11"},
+						{unit_num: "37", num_units: "8"},
+						{unit_num: "42", num_units: "9"},
+						{unit_num: "47", num_units: "10"},
+						{unit_num: "83", num_units: "0"}
+					],	
+					cavalry: [ // конница	
+						{unit_num: "14", num_units: "10"},
+						{unit_num: "17", num_units: "3"},
+						{unit_num: "52", num_units: "22"},
+						{unit_num: "3", num_units: "17"},
+						{unit_num: "29", num_units: "9"},
+						{unit_num: "5", num_units: "2"}
+					]	
+				},	
+				survived: { // выжившие		
+					assault: [ // атака	
+						{unit_num: "1", num_units: "191"},
+						{unit_num: "12", num_units: "47"},
+						{unit_num: "33", num_units: "156"},
+						{unit_num: "34", num_units: "143"},
+						{unit_num: "43", num_units: "219"},
+						{unit_num: "58", num_units: "129"},
+						{unit_num: "13", num_units: "134"},
+						{unit_num: "53", num_units: "206"},
+						{unit_num: "31", num_units: "213"},
+						{unit_num: "4", num_units: "236"}
+					],	
+					archers: [ // стрелки	
+						{unit_num: "2", num_units: "29"},
+						{unit_num: "9", num_units: "122"},
+						{unit_num: "18", num_units: "93"},
+						{unit_num: "23", num_units: "16"},
+						{unit_num: "24", num_units: "140"},
+						{unit_num: "37", num_units: "72"},
+						{unit_num: "42", num_units: "144"},
+						{unit_num: "47", num_units: "188"},
+						{unit_num: "83", num_units: "290"}
+					],	
+					cavalry: [ // конница	
+						{unit_num: "14", num_units: "153"},
+						{unit_num: "17", num_units: "73"},
+						{unit_num: "52", num_units: "194"},
+						{unit_num: "3", num_units: "193"},
+						{unit_num: "29", num_units: "221"},
+						{unit_num: "5", num_units: "30"}
+					]
+				}
+			},
+			{ // Город 3
+				city_name: "Раджий",
+				city_pic: 3,
+				country: "Биг Банг",
+				flag: 3,
+				gov_name: "Кака",
+				gov_pic: 3,
+				num_troops: 2670, // общее количество армии
+				battle_rate: 1445, // военный рейтинг в %			
+				army: { // вся армия		
+					assault: [ // атака	
+						{unit_num: "1", num_units: "181"},
+						{unit_num: "12", num_units: "108"},
+						{unit_num: "33", num_units: "140"},
+						{unit_num: "34", num_units: "98"},
+						{unit_num: "43", num_units: "70"},
+						{unit_num: "58", num_units: "181"},
+						{unit_num: "13", num_units: "169"},
+						{unit_num: "53", num_units: "111"},
+						{unit_num: "31", num_units: "108"},
+						{unit_num: "4", num_units: "75"}
+					],	
+					archers: [ // стрелки	
+						{unit_num: "2", num_units: "145"},
+						{unit_num: "9", num_units: "123"},
+						{unit_num: "18", num_units: "114"},
+						{unit_num: "23", num_units: "72"},
+						{unit_num: "24", num_units: "135"},
+						{unit_num: "37", num_units: "179"},
+						{unit_num: "42", num_units: "185"},
+						{unit_num: "47", num_units: "141"},
+						{unit_num: "83", num_units: "157"}
+					],	
+					cavalry: [ // конница	
+						{unit_num: "14", num_units: "146"},
+						{unit_num: "17", num_units: "87"},
+						{unit_num: "52", num_units: "189"},
+						{unit_num: "3", num_units: "183"},
+						{unit_num: "29", num_units: "135"},
+						{unit_num: "5", num_units: "73"}
+				]	},	
+				fallen: { //погибшие		
+					assault: [ // атака	
+						{unit_num: "1", num_units: "152"},
+						{unit_num: "12", num_units: "80"},
+						{unit_num: "33", num_units: "133"},
+						{unit_num: "34", num_units: "88"},
+						{unit_num: "43", num_units: "41"},
+						{unit_num: "58", num_units: "141"},
+						{unit_num: "13", num_units: "139"},
+						{unit_num: "53", num_units: "63"},
+						{unit_num: "31", num_units: "89"},
+						{unit_num: "4", num_units: "41"}
+					],	
+					archers: [ // стрелки	
+						{unit_num: "2", num_units: "93"},
+						{unit_num: "9", num_units: "65"},
+						{unit_num: "18", num_units: "108"},
+						{unit_num: "23", num_units: "53"},
+						{unit_num: "24", num_units: "88"},
+						{unit_num: "37", num_units: "115"},
+						{unit_num: "42", num_units: "159"},
+						{unit_num: "47", num_units: "83"},
+						{unit_num: "83", num_units: "104"}
+					],	
+					cavalry: [ // конница	
+						{unit_num: "14", num_units: "112"},
+						{unit_num: "17", num_units: "57"},
+						{unit_num: "52", num_units: "123"},
+						{unit_num: "3", num_units: "124"},
+						{unit_num: "29", num_units: "117"},
+						{unit_num: "5", num_units: "48"}
+				]	},	
+				survived: { // выжившие		
+					assault: [ // атака	
+						{unit_num: "1", num_units: "29"},
+						{unit_num: "12", num_units: "28"},
+						{unit_num: "33", num_units: "7"},
+						{unit_num: "34", num_units: "10"},
+						{unit_num: "43", num_units: "29"},
+						{unit_num: "58", num_units: "40"},
+						{unit_num: "13", num_units: "30"},
+						{unit_num: "53", num_units: "48"},
+						{unit_num: "31", num_units: "19"},
+						{unit_num: "4", num_units: "35"}
+					],	
+					archers: [ // стрелки	
+						{unit_num: "2", num_units: "52"},
+						{unit_num: "9", num_units: "58"},
+						{unit_num: "18", num_units: "6"},
+						{unit_num: "23", num_units: "19"},
+						{unit_num: "24", num_units: "47"},
+						{unit_num: "37", num_units: "64"},
+						{unit_num: "42", num_units: "26"},
+						{unit_num: "47", num_units: "58"},
+						{unit_num: "83", num_units: "53"}
+					],	
+					cavalry: [ // конница	
+						{unit_num: "14", num_units: "34"},
+						{unit_num: "17", num_units: "30"},
+						{unit_num: "52", num_units: "66"},
+						{unit_num: "3", num_units: "59"},
+						{unit_num: "29", num_units: "18"},
+						{unit_num: "5", num_units: "25"}
+					]
+				}
+			},
+			{ // Город 4
+				city_name: "Странный",
+				city_pic: 5,
+				country: "Дядитётинг",
+				flag: 5,
+				gov_name: "Оно",
+				gov_pic: 5,
+				num_troops: 678, // общее количество армии
+				battle_rate: 15, // военный рейтинг в %			
+				army: { // вся армия		
+					assault: [ // атака	
+						{unit_num: "1", num_units: "24"},
+						{unit_num: "12", num_units: "11"},
+						{unit_num: "33", num_units: "57"},
+						{unit_num: "34", num_units: "32"},
+						{unit_num: "43", num_units: "57"},
+						{unit_num: "58", num_units: "53"},
+						{unit_num: "13", num_units: "32"},
+						{unit_num: "53", num_units: "20"},
+						{unit_num: "31", num_units: "17"},
+						{unit_num: "4", num_units: "15"}
+					],	
+					archers: [ // стрелки	
+						{unit_num: "2", num_units: "47"},
+						{unit_num: "9", num_units: "20"},
+						{unit_num: "18", num_units: "55"},
+						{unit_num: "23", num_units: "17"},
+						{unit_num: "24", num_units: "29"},
+						{unit_num: "37", num_units: "52"},
+						{unit_num: "42", num_units: "20"},
+						{unit_num: "47", num_units: "57"},
+						{unit_num: "83", num_units: "52"}
+					],	
+					cavalry: [ // конница	
+						{unit_num: "14", num_units: "8"},
+						{unit_num: "17", num_units: "55"},
+						{unit_num: "52", num_units: "42"},
+						{unit_num: "3", num_units: "19"},
+						{unit_num: "29", num_units: "35"},
+						{unit_num: "5", num_units: "15"}
+					]
+				},	
+				fallen: { //погибшие		
+					assault: [ // атака	
+						{unit_num: "1", num_units: "24"},
+						{unit_num: "12", num_units: "9"},
+						{unit_num: "33", num_units: "47"},
+						{unit_num: "34", num_units: "26"},
+						{unit_num: "43", num_units: "50"},
+						{unit_num: "58", num_units: "42"},
+						{unit_num: "13", num_units: "26"},
+						{unit_num: "53", num_units: "17"},
+						{unit_num: "31", num_units: "16"},
+						{unit_num: "4", num_units: "13"}
+					],	
+					archers: [ // стрелки	
+						{unit_num: "2", num_units: "38"},
+						{unit_num: "9", num_units: "18"},
+						{unit_num: "18", num_units: "51"},
+						{unit_num: "23", num_units: "14"},
+						{unit_num: "24", num_units: "25"},
+						{unit_num: "37", num_units: "47"},
+						{unit_num: "42", num_units: "18"},
+						{unit_num: "47", num_units: "47"},
+						{unit_num: "83", num_units: "44"}
+					],	
+					cavalry: [ // конница	
+						{unit_num: "14", num_units: "6"},
+						{unit_num: "17", num_units: "45"},
+						{unit_num: "52", num_units: "38"},
+						{unit_num: "3", num_units: "18"},
+						{unit_num: "29", num_units: "29"},
+						{unit_num: "5", num_units: "13"}
+					]
+				},	
+				survived: { // выжившие		
+					assault: [ // атака	
+						{unit_num: "1", num_units: "0"},
+						{unit_num: "12", num_units: "2"},
+						{unit_num: "33", num_units: "10"},
+						{unit_num: "34", num_units: "6"},
+						{unit_num: "43", num_units: "7"},
+						{unit_num: "58", num_units: "11"},
+						{unit_num: "13", num_units: "6"},
+						{unit_num: "53", num_units: "3"},
+						{unit_num: "31", num_units: "1"},
+						{unit_num: "4", num_units: "2"}
+					],	
+					archers: [ // стрелки	
+						{unit_num: "2", num_units: "9"},
+						{unit_num: "9", num_units: "2"},
+						{unit_num: "18", num_units: "4"},
+						{unit_num: "23", num_units: "3"},
+						{unit_num: "24", num_units: "4"},
+						{unit_num: "37", num_units: "5"},
+						{unit_num: "42", num_units: "2"},
+						{unit_num: "47", num_units: "10"},
+						{unit_num: "83", num_units: "8"}
+					],	
+					cavalry: [ // конница	
+						{unit_num: "14", num_units: "2"},
+						{unit_num: "17", num_units: "10"},
+						{unit_num: "52", num_units: "4"},
+						{unit_num: "3", num_units: "1"},
+						{unit_num: "29", num_units: "6"},
+						{unit_num: "5", num_units: "2"}
+					]
+				}
+			},
+			{ // Город 5
+				city_name: "Шреддервилль",
+				city_pic: 4,
+				country: "Манхеттен",
+				flag: 4,
+				gov_name: "Шреддер",
+				gov_pic: 4,
+				num_troops: 415, // общее количество армии
+				battle_rate: 27, // военный рейтинг в %			
+				army: { // вся армия		
+					assault: [ // атака	
+						{unit_num: "1", num_units: "29"},
+						{unit_num: "12", num_units: "26"},
+						{unit_num: "33", num_units: "18"},
+						{unit_num: "34", num_units: "26"},
+						{unit_num: "43", num_units: "28"},
+						{unit_num: "58", num_units: "26"},
+						{unit_num: "13", num_units: "28"},
+						{unit_num: "53", num_units: "29"},
+						{unit_num: "31", num_units: "19"},
+						{unit_num: "4", num_units: "17"}
+					],	
+					archers: [ // стрелки	
+						{unit_num: "2", num_units: "27"},
+						{unit_num: "9", num_units: "20"},
+						{unit_num: "18", num_units: "16"},
+						{unit_num: "23", num_units: "18"},
+						{unit_num: "24", num_units: "14"},
+						{unit_num: "37", num_units: "16"},
+						{unit_num: "42", num_units: "20"},
+						{unit_num: "47", num_units: "10"},
+						{unit_num: "83", num_units: "10"}
+					],	
+					cavalry: [ // конница	
+						{unit_num: "14", num_units: "11"},
+						{unit_num: "17", num_units: "30"},
+						{unit_num: "52", num_units: "26"},
+						{unit_num: "3", num_units: "13"},
+						{unit_num: "29", num_units: "29"},
+						{unit_num: "5", num_units: "19"}
+				]	},	
+				fallen: { //погибшие		
+					assault: [ // атака	
+						{unit_num: "1", num_units: "28"},
+						{unit_num: "12", num_units: "25"},
+						{unit_num: "33", num_units: "18"},
+						{unit_num: "34", num_units: "26"},
+						{unit_num: "43", num_units: "28"},
+						{unit_num: "58", num_units: "25"},
+						{unit_num: "13", num_units: "28"},
+						{unit_num: "53", num_units: "29"},
+						{unit_num: "31", num_units: "17"},
+						{unit_num: "4", num_units: "17"}
+					],	
+					archers: [ // стрелки	
+						{unit_num: "2", num_units: "26"},
+						{unit_num: "9", num_units: "20"},
+						{unit_num: "18", num_units: "16"},
+						{unit_num: "23", num_units: "18"},
+						{unit_num: "24", num_units: "13"},
+						{unit_num: "37", num_units: "15"},
+						{unit_num: "42", num_units: "19"},
+						{unit_num: "47", num_units: "9"},
+						{unit_num: "83", num_units: "10"}
+					],	
+					cavalry: [ // конница	
+						{unit_num: "14", num_units: "10"},
+						{unit_num: "17", num_units: "27"},
+						{unit_num: "52", num_units: "25"},
+						{unit_num: "3", num_units: "12"},
+						{unit_num: "29", num_units: "27"},
+						{unit_num: "5", num_units: "19"}
+				]	},	
+				survived: { // выжившие		
+					assault: [ // атака	
+						{unit_num: "1", num_units: "1"},
+						{unit_num: "12", num_units: "1"},
+						{unit_num: "33", num_units: "0"},
+						{unit_num: "34", num_units: "0"},
+						{unit_num: "43", num_units: "0"},
+						{unit_num: "58", num_units: "1"},
+						{unit_num: "13", num_units: "0"},
+						{unit_num: "53", num_units: "0"},
+						{unit_num: "31", num_units: "2"},
+						{unit_num: "4", num_units: "0"}
+					],	
+					archers: [ // стрелки	
+						{unit_num: "2", num_units: "1"},
+						{unit_num: "9", num_units: "0"},
+						{unit_num: "18", num_units: "0"},
+						{unit_num: "23", num_units: "0"},
+						{unit_num: "24", num_units: "1"},
+						{unit_num: "37", num_units: "1"},
+						{unit_num: "42", num_units: "1"},
+						{unit_num: "47", num_units: "1"},
+						{unit_num: "83", num_units: "0"}
+					],	
+					cavalry: [ // конница	
+						{unit_num: "14", num_units: "1"},
+						{unit_num: "17", num_units: "3"},
+						{unit_num: "52", num_units: "1"},
+						{unit_num: "3", num_units: "1"},
+						{unit_num: "29", num_units: "2"},
+						{unit_num: "5", num_units: "0"}
+					]
+				}
+			}],
+			atk_cities: [
+			{ // Город 1
+				city_name: "Теплый ламповый",
+				city_pic: 4,
+				country: "Магазинчик",
+				flag: 10,
+				gov_name: "Прод",
+				gov_pic: 2,
+				num_troops: 13312, // общее количество армии
+				battle_rate: 221, // военный рейтинг в %			
+				army: { // вся армия		
+					assault: [ // атака	
+						{unit_num: "31", num_units: "177"},
+						{unit_num: "12", num_units: "264"},
+						{unit_num: "63", num_units: "88"},
+						{unit_num: "34", num_units: "74"},
+						{unit_num: "43", num_units: "48"},
+						{unit_num: "58", num_units: "191"},
+						{unit_num: "13", num_units: "65"},
+						{unit_num: "53", num_units: "290"},
+						{unit_num: "1", num_units: "123"},
+						{unit_num: "4", num_units: "165"}
+					],
+					archers: [ // стрелки
+						{unit_num: "64", num_units: "165"},
+						{unit_num: "24", num_units: "165"},
+						{unit_num: "12", num_units: "237"},
+						{unit_num: "9", num_units: "38"},
+						{unit_num: "18", num_units: "232"},
+						{unit_num: "23", num_units: "193"},
+						{unit_num: "24", num_units: "283"},
+						{unit_num: "37", num_units: "207"},
+						{unit_num: "42", num_units: "261"},
+						{unit_num: "47", num_units: "219"},
+						{unit_num: "83", num_units: "98"}
+					],	
+					cavalry: [ // конница	
+						{unit_num: "54", num_units: "200"},
+						{unit_num: "55", num_units: "293"},
+						{unit_num: "56", num_units: "54"},
+						{unit_num: "57", num_units: "263"},
+						{unit_num: "58", num_units: "63"},
+						{unit_num: "59", num_units: "63"}
+					]
+				},	
+				fallen: { //погибшие		
+					assault: [ // атака	
+						{unit_num: "71", num_units: "71"},
+						{unit_num: "82", num_units: "203"},
+						{unit_num: "33", num_units: "78"},
+						{unit_num: "34", num_units: "44"},
+						{unit_num: "43", num_units: "38"},
+						{unit_num: "58", num_units: "97"},
+						{unit_num: "13", num_units: "15"},
+						{unit_num: "53", num_units: "113"},
+						{unit_num: "31", num_units: "64"},
+						{unit_num: "4", num_units: "99"}
+					],	
+					archers: [ // стрелки	
+						{unit_num: "2", num_units: "71"},
+						{unit_num: "9", num_units: "29"},
+						{unit_num: "18", num_units: "197"},
+						{unit_num: "23", num_units: "2"},
+						{unit_num: "24", num_units: "76"},
+						{unit_num: "37", num_units: "52"},
+						{unit_num: "42", num_units: "3"},
+						{unit_num: "47", num_units: "153"},
+						{unit_num: "83", num_units: "85"},
+						{unit_num: "14", num_units: "172"}
+					],	
+					cavalry: [ // конница
+						{unit_num: "17", num_units: "185"},
+						{unit_num: "52", num_units: "44"},
+						{unit_num: "35", num_units: "231"},
+						{unit_num: "54", num_units: "1"},
+						{unit_num: "55", num_units: "45"},
+						{unit_num: "56", num_units: "106"},
+						{unit_num: "69", num_units: "61"},
+						{unit_num: "59", num_units: "10"},
+						{unit_num: "67", num_units: "30"}
+					]
+				},	
+				survived: { // выжившие	
+					assault: [ // атака
+						{unit_num: "43", num_units: "10"},
+						{unit_num: "58", num_units: "94"},
+						{unit_num: "13", num_units: "50"},
+						{unit_num: "53", num_units: "177"},
+						{unit_num: "31", num_units: "59"},
+						{unit_num: "4", num_units: "66"},
+						{unit_num: "2", num_units: "166"},
+						{unit_num: "9", num_units: "9"},
+						{unit_num: "18", num_units: "35"},
+						{unit_num: "23", num_units: "191"},
+						{unit_num: "24", num_units: "207"},
+						{unit_num: "37", num_units: "155"}
+					],	
+					archers: [ // стрелки
+						{unit_num: "42", num_units: "258"},
+						{unit_num: "47", num_units: "66"},
+						{unit_num: "14", num_units: "28"},
+						{unit_num: "17", num_units: "108"},
+						{unit_num: "52", num_units: "10"},
+						{unit_num: "3", num_units: "32"},
+						{unit_num: "29", num_units: "62"},
+						{unit_num: "5", num_units: "18"}
+					],	
+					cavalry: [ // конница
+						{unit_num: "14", num_units: "132"},
+						{unit_num: "17", num_units: "252"},
+						{unit_num: "52", num_units: "406"},
+						{unit_num: "69", num_units: "377"},
+						{unit_num: "29", num_units: "97"},
+						{unit_num: "73", num_units: "316"}
+					]
+				}	
+			},	
+			{ // Город 2
+				city_name: "Акульи ошмётки",
+				city_pic: 1,
+				country: "Грязная лужа",
+				flag: 3,
+				gov_name: "Амёба",
+				gov_pic: 4,
+				num_troops: 5894, // общее количество армии
+				battle_rate: 89, // военный рейтинг в %
+				army: { // вся армия		
+					assault: [ // атака	
+						{unit_num: "31", num_units: "94"},
+						{unit_num: "12", num_units: "192"},
+						{unit_num: "78", num_units: "581"},
+						{unit_num: "34", num_units: "400"},
+						{unit_num: "43", num_units: "277"},
+						{unit_num: "58", num_units: "263"},
+						{unit_num: "13", num_units: "374"},
+						{unit_num: "53", num_units: "290"},
+						{unit_num: "1", num_units: "123"},
+						{unit_num: "4", num_units: "165"},
+						{unit_num: "43", num_units: "94"},
+					],
+					archers: [ // стрелки
+						{unit_num: "64", num_units: "22"},
+						{unit_num: "24", num_units: "22"},
+						{unit_num: "10", num_units: "391"},
+						{unit_num: "9", num_units: "589"},
+						{unit_num: "18", num_units: "378"},
+						{unit_num: "23", num_units: "251"},
+						{unit_num: "24", num_units: "283"},
+						{unit_num: "37", num_units: "207"},
+						{unit_num: "42", num_units: "261"},
+						{unit_num: "47", num_units: "219"},
+						{unit_num: "83", num_units: "98"}
+					],	
+					cavalry: [ // конница	
+						{unit_num: "54", num_units: "489"},
+						{unit_num: "55", num_units: "528"},
+						{unit_num: "56", num_units: "257"},
+						{unit_num: "57", num_units: "263"},
+						{unit_num: "58", num_units: "251"},
+						{unit_num: "59", num_units: "163"}
+					]
+				},	
+				fallen: { //погибшие		
+					assault: [ // атака	
+						{unit_num: "31", num_units: "14"},
+						{unit_num: "12", num_units: "19"},
+						{unit_num: "58", num_units: "79"},
+						{unit_num: "13", num_units: "82"},
+						{unit_num: "53", num_units: "113"},
+						{unit_num: "31", num_units: "64"},
+						{unit_num: "4", num_units: "99"},
+						{unit_num: "71", num_units: "14"},
+						{unit_num: "43", num_units: "94"},
+						{unit_num: "82", num_units: "48"},
+						{unit_num: "33", num_units: "157"},
+						{unit_num: "34", num_units: "76"}
+					],	
+					archers: [ // стрелки	
+						{unit_num: "2", num_units: "2"},
+						{unit_num: "9", num_units: "47"},
+						{unit_num: "18", num_units: "135"},
+						{unit_num: "23", num_units: "42"},
+						{unit_num: "24", num_units: "60"},
+						{unit_num: "37", num_units: "52"},
+						{unit_num: "42", num_units: "3"},
+						{unit_num: "47", num_units: "153"},
+						{unit_num: "83", num_units: "85"},
+						{unit_num: "14", num_units: "172"}
+					],	
+					cavalry: [ // конница
+						{unit_num: "17", num_units: "127"},
+						{unit_num: "52", num_units: "42"},
+						{unit_num: "35", num_units: "36"},
+						{unit_num: "54", num_units: "69"},
+						{unit_num: "55", num_units: "17"},
+						{unit_num: "56", num_units: "106"},
+						{unit_num: "69", num_units: "61"},
+						{unit_num: "59", num_units: "10"},
+						{unit_num: "67", num_units: "30"}
+					]
+				},	
+				survived: { // выжившие	
+					assault: [ // атака
+						{unit_num: "31", num_units: "80"},
+						{unit_num: "12", num_units: "173"},
+						{unit_num: "31", num_units: "144"},
+						{unit_num: "13", num_units: "424"},
+						{unit_num: "53", num_units: "324"},
+						{unit_num: "58", num_units: "258"},
+						{unit_num: "4", num_units: "184"},
+						{unit_num: "2", num_units: "292"},
+						{unit_num: "9", num_units: "9"},
+						{unit_num: "18", num_units: "35"},
+						{unit_num: "23", num_units: "191"},
+						{unit_num: "24", num_units: "207"},
+						{unit_num: "37", num_units: "155"}
+					],	
+					archers: [ // стрелки
+						{unit_num: "42", num_units: "20"},
+						{unit_num: "47", num_units: "344"},
+						{unit_num: "14", num_units: "454"},
+						{unit_num: "17", num_units: "336"},
+						{unit_num: "52", num_units: "191"},
+						{unit_num: "3", num_units: "32"},
+						{unit_num: "29", num_units: "62"},
+						{unit_num: "5", num_units: "18"}
+					],	
+					cavalry: [ // конница
+						{unit_num: "14", num_units: "362"},
+						{unit_num: "17", num_units: "486"},
+						{unit_num: "52", num_units: "221"},
+						{unit_num: "69", num_units: "464"},
+						{unit_num: "29", num_units: "216"},
+						{unit_num: "73", num_units: "316"}
+					]
+				}
+			},
+			{ // Город 3
+				city_name: "Киэфси",
+				city_pic: 3,
+				country: "Обжоры с табуретками",
+				flag: 11,
+				gov_name: "Гитарист",
+				gov_pic: 7,
+				num_troops: 5862, // общее количество армии
+				battle_rate: 91, // военный рейтинг в %
+				army: {
+					assault: [ // атака	
+						{unit_num: "31", num_units: "94"},
+						{unit_num: "12", num_units: "192"},
+						{unit_num: "78", num_units: "581"},
+						{unit_num: "34", num_units: "400"},
+						{unit_num: "43", num_units: "277"},
+						{unit_num: "58", num_units: "263"},
+						{unit_num: "13", num_units: "374"},
+						{unit_num: "53", num_units: "290"},
+						{unit_num: "1", num_units: "123"},
+						{unit_num: "4", num_units: "165"},
+						{unit_num: "43", num_units: "94"},
+					],
+					archers: [ // стрелки
+						{unit_num: "64", num_units: "22"},
+						{unit_num: "24", num_units: "22"},
+						{unit_num: "10", num_units: "391"},
+						{unit_num: "9", num_units: "589"},
+						{unit_num: "18", num_units: "378"},
+						{unit_num: "23", num_units: "251"},
+						{unit_num: "24", num_units: "283"},
+						{unit_num: "37", num_units: "207"},
+						{unit_num: "42", num_units: "261"},
+						{unit_num: "47", num_units: "219"},
+						{unit_num: "83", num_units: "98"}
+					],	
+					cavalry: [ // конница	
+						{unit_num: "54", num_units: "489"},
+						{unit_num: "55", num_units: "528"},
+						{unit_num: "56", num_units: "257"},
+						{unit_num: "57", num_units: "263"},
+						{unit_num: "58", num_units: "251"},
+						{unit_num: "59", num_units: "163"}
+					]
+				},	
+				fallen: { //погибшие		
+					assault: [ // атака	
+						{unit_num: "31", num_units: "14"},
+						{unit_num: "12", num_units: "19"},
+						{unit_num: "58", num_units: "79"},
+						{unit_num: "13", num_units: "82"},
+						{unit_num: "53", num_units: "113"},
+						{unit_num: "31", num_units: "64"},
+						{unit_num: "4", num_units: "99"},
+						{unit_num: "71", num_units: "14"},
+						{unit_num: "43", num_units: "94"},
+						{unit_num: "82", num_units: "48"},
+						{unit_num: "33", num_units: "157"},
+						{unit_num: "34", num_units: "76"}
+					],	
+					archers: [ // стрелки	
+						{unit_num: "2", num_units: "2"},
+						{unit_num: "9", num_units: "47"},
+						{unit_num: "18", num_units: "135"},
+						{unit_num: "23", num_units: "42"},
+						{unit_num: "24", num_units: "60"},
+						{unit_num: "37", num_units: "52"},
+						{unit_num: "42", num_units: "3"},
+						{unit_num: "47", num_units: "153"},
+						{unit_num: "83", num_units: "85"},
+						{unit_num: "14", num_units: "172"}
+					],	
+					cavalry: [ // конница
+						{unit_num: "17", num_units: "127"},
+						{unit_num: "52", num_units: "42"},
+						{unit_num: "35", num_units: "36"},
+						{unit_num: "54", num_units: "69"},
+						{unit_num: "55", num_units: "17"},
+						{unit_num: "56", num_units: "106"},
+						{unit_num: "69", num_units: "61"},
+						{unit_num: "59", num_units: "10"},
+						{unit_num: "67", num_units: "30"}
+					]
+				},	
+				survived: { // выжившие	
+					assault: [ // атака
+						{unit_num: "31", num_units: "80"},
+						{unit_num: "12", num_units: "173"},
+						{unit_num: "31", num_units: "144"},
+						{unit_num: "13", num_units: "424"},
+						{unit_num: "53", num_units: "324"},
+						{unit_num: "58", num_units: "258"},
+						{unit_num: "4", num_units: "184"},
+						{unit_num: "2", num_units: "292"},
+						{unit_num: "9", num_units: "9"},
+						{unit_num: "18", num_units: "35"},
+						{unit_num: "23", num_units: "191"},
+						{unit_num: "24", num_units: "207"},
+						{unit_num: "37", num_units: "155"}
+					],	
+					archers: [ // стрелки
+						{unit_num: "42", num_units: "20"},
+						{unit_num: "47", num_units: "344"},
+						{unit_num: "14", num_units: "454"},
+						{unit_num: "17", num_units: "336"},
+						{unit_num: "52", num_units: "191"},
+						{unit_num: "3", num_units: "32"},
+						{unit_num: "29", num_units: "62"},
+						{unit_num: "5", num_units: "18"}
+					],	
+					cavalry: [ // конница
+						{unit_num: "14", num_units: "362"},
+						{unit_num: "17", num_units: "486"},
+						{unit_num: "52", num_units: "221"},
+						{unit_num: "69", num_units: "464"},
+						{unit_num: "29", num_units: "216"},
+						{unit_num: "73", num_units: "316"}
+					]
+				}
+			},
+			{ // Город 4
+				city_name: "Нью-Йорк",
+				city_pic: 2,
+				country: "Готы в чёрном",
+				flag: 0,
+				gov_name: "Мужик с тату",
+				gov_pic: 3,
+				num_troops: 5617, // общее количество армии
+				battle_rate: 10, // военный рейтинг в %
+				army: {
+					assault: [ // атака	
+						{unit_num: "31", num_units: "94"},
+						{unit_num: "12", num_units: "192"},
+						{unit_num: "78", num_units: "581"},
+						{unit_num: "34", num_units: "400"},
+						{unit_num: "43", num_units: "277"},
+						{unit_num: "58", num_units: "263"},
+						{unit_num: "13", num_units: "374"},
+						{unit_num: "53", num_units: "290"},
+						{unit_num: "1", num_units: "123"},
+						{unit_num: "4", num_units: "165"},
+						{unit_num: "43", num_units: "94"},
+					],
+					archers: [ // стрелки
+						{unit_num: "64", num_units: "22"},
+						{unit_num: "24", num_units: "22"},
+						{unit_num: "10", num_units: "391"},
+						{unit_num: "9", num_units: "589"},
+						{unit_num: "18", num_units: "378"},
+						{unit_num: "23", num_units: "251"},
+						{unit_num: "24", num_units: "283"},
+						{unit_num: "37", num_units: "207"},
+						{unit_num: "42", num_units: "261"},
+						{unit_num: "47", num_units: "219"},
+						{unit_num: "83", num_units: "98"}
+					],	
+					cavalry: [ // конница	
+						{unit_num: "54", num_units: "489"},
+						{unit_num: "55", num_units: "528"},
+						{unit_num: "56", num_units: "257"},
+						{unit_num: "57", num_units: "263"},
+						{unit_num: "58", num_units: "251"},
+						{unit_num: "59", num_units: "163"}
+					]
+				},	
+				fallen: { //погибшие		
+					assault: [ // атака	
+						{unit_num: "31", num_units: "14"},
+						{unit_num: "12", num_units: "19"},
+						{unit_num: "58", num_units: "79"},
+						{unit_num: "13", num_units: "82"},
+						{unit_num: "53", num_units: "113"},
+						{unit_num: "31", num_units: "64"},
+						{unit_num: "4", num_units: "99"},
+						{unit_num: "71", num_units: "14"},
+						{unit_num: "43", num_units: "94"},
+						{unit_num: "82", num_units: "48"},
+						{unit_num: "33", num_units: "157"},
+						{unit_num: "34", num_units: "76"}
+					],	
+					archers: [ // стрелки	
+						{unit_num: "2", num_units: "2"},
+						{unit_num: "9", num_units: "47"},
+						{unit_num: "18", num_units: "135"},
+						{unit_num: "23", num_units: "42"},
+						{unit_num: "24", num_units: "60"},
+						{unit_num: "37", num_units: "52"},
+						{unit_num: "42", num_units: "3"},
+						{unit_num: "47", num_units: "153"},
+						{unit_num: "83", num_units: "85"},
+						{unit_num: "14", num_units: "172"}
+					],	
+					cavalry: [ // конница
+						{unit_num: "17", num_units: "127"},
+						{unit_num: "52", num_units: "42"},
+						{unit_num: "35", num_units: "36"},
+						{unit_num: "54", num_units: "69"},
+						{unit_num: "55", num_units: "17"},
+						{unit_num: "56", num_units: "106"},
+						{unit_num: "69", num_units: "61"},
+						{unit_num: "59", num_units: "10"},
+						{unit_num: "67", num_units: "30"}
+					]
+				},	
+				survived: { // выжившие	
+					assault: [ // атака
+						{unit_num: "31", num_units: "80"},
+						{unit_num: "12", num_units: "173"},
+						{unit_num: "31", num_units: "144"},
+						{unit_num: "13", num_units: "424"},
+						{unit_num: "53", num_units: "324"},
+						{unit_num: "58", num_units: "258"},
+						{unit_num: "4", num_units: "184"},
+						{unit_num: "2", num_units: "292"},
+						{unit_num: "9", num_units: "9"},
+						{unit_num: "18", num_units: "35"},
+						{unit_num: "23", num_units: "191"},
+						{unit_num: "24", num_units: "207"},
+						{unit_num: "37", num_units: "155"}
+					],	
+					archers: [ // стрелки
+						{unit_num: "42", num_units: "20"},
+						{unit_num: "47", num_units: "344"},
+						{unit_num: "14", num_units: "454"},
+						{unit_num: "17", num_units: "336"},
+						{unit_num: "52", num_units: "191"},
+						{unit_num: "3", num_units: "32"},
+						{unit_num: "29", num_units: "62"},
+						{unit_num: "5", num_units: "18"}
+					],	
+					cavalry: [ // конница
+						{unit_num: "14", num_units: "362"},
+						{unit_num: "17", num_units: "486"},
+						{unit_num: "52", num_units: "221"},
+						{unit_num: "69", num_units: "464"},
+						{unit_num: "29", num_units: "216"},
+						{unit_num: "73", num_units: "316"}
+					]
+				}
+			},
+			{ // Город 5
+				city_name: "Шматрица",
+				city_pic: 1,
+				country: "Дисплей",
+				flag: 12,
+				gov_name: "Пиксель",
+				gov_pic: 6,
+				num_troops: 3835, // общее количество армии
+				battle_rate: 68, // военный рейтинг в %
+				army: {
+					assault: [ // атака	
+						{unit_num: "31", num_units: "94"},
+						{unit_num: "12", num_units: "192"},
+						{unit_num: "78", num_units: "581"},
+						{unit_num: "34", num_units: "400"},
+						{unit_num: "43", num_units: "277"},
+						{unit_num: "58", num_units: "263"},
+						{unit_num: "13", num_units: "374"},
+						{unit_num: "53", num_units: "290"},
+						{unit_num: "1", num_units: "123"},
+						{unit_num: "4", num_units: "165"},
+						{unit_num: "43", num_units: "94"},
+					],
+					archers: [ // стрелки
+						{unit_num: "64", num_units: "22"},
+						{unit_num: "24", num_units: "22"},
+						{unit_num: "10", num_units: "391"},
+						{unit_num: "9", num_units: "589"},
+						{unit_num: "18", num_units: "378"},
+						{unit_num: "23", num_units: "251"},
+						{unit_num: "24", num_units: "283"},
+						{unit_num: "37", num_units: "207"},
+						{unit_num: "42", num_units: "261"},
+						{unit_num: "47", num_units: "219"},
+						{unit_num: "83", num_units: "98"}
+					],	
+					cavalry: [ // конница	
+						{unit_num: "54", num_units: "489"},
+						{unit_num: "55", num_units: "528"},
+						{unit_num: "56", num_units: "257"},
+						{unit_num: "57", num_units: "263"},
+						{unit_num: "58", num_units: "251"},
+						{unit_num: "59", num_units: "163"}
+					]
+				},	
+				fallen: { //погибшие		
+					assault: [ // атака	
+						{unit_num: "31", num_units: "14"},
+						{unit_num: "12", num_units: "19"},
+						{unit_num: "58", num_units: "79"},
+						{unit_num: "13", num_units: "82"},
+						{unit_num: "53", num_units: "113"},
+						{unit_num: "31", num_units: "64"},
+						{unit_num: "4", num_units: "99"},
+						{unit_num: "71", num_units: "14"},
+						{unit_num: "43", num_units: "94"},
+						{unit_num: "82", num_units: "48"},
+						{unit_num: "33", num_units: "157"},
+						{unit_num: "34", num_units: "76"}
+					],	
+					archers: [ // стрелки	
+						{unit_num: "2", num_units: "2"},
+						{unit_num: "9", num_units: "47"},
+						{unit_num: "18", num_units: "135"},
+						{unit_num: "23", num_units: "42"},
+						{unit_num: "24", num_units: "60"},
+						{unit_num: "37", num_units: "52"},
+						{unit_num: "42", num_units: "3"},
+						{unit_num: "47", num_units: "153"},
+						{unit_num: "83", num_units: "85"},
+						{unit_num: "14", num_units: "172"}
+					],	
+					cavalry: [ // конница
+						{unit_num: "17", num_units: "127"},
+						{unit_num: "52", num_units: "42"},
+						{unit_num: "35", num_units: "36"},
+						{unit_num: "54", num_units: "69"},
+						{unit_num: "55", num_units: "17"},
+						{unit_num: "56", num_units: "106"},
+						{unit_num: "69", num_units: "61"},
+						{unit_num: "59", num_units: "10"},
+						{unit_num: "67", num_units: "30"}
+					]
+				},	
+				survived: { // выжившие	
+					assault: [ // атака
+						{unit_num: "31", num_units: "80"},
+						{unit_num: "12", num_units: "173"},
+						{unit_num: "31", num_units: "144"},
+						{unit_num: "13", num_units: "424"},
+						{unit_num: "53", num_units: "324"},
+						{unit_num: "58", num_units: "258"},
+						{unit_num: "4", num_units: "184"},
+						{unit_num: "2", num_units: "292"},
+						{unit_num: "9", num_units: "9"},
+						{unit_num: "18", num_units: "35"},
+						{unit_num: "23", num_units: "191"},
+						{unit_num: "24", num_units: "207"},
+						{unit_num: "37", num_units: "155"}
+					],	
+					archers: [ // стрелки
+						{unit_num: "42", num_units: "20"},
+						{unit_num: "47", num_units: "344"},
+						{unit_num: "14", num_units: "454"},
+						{unit_num: "17", num_units: "336"},
+						{unit_num: "52", num_units: "191"},
+						{unit_num: "3", num_units: "32"},
+						{unit_num: "29", num_units: "62"},
+						{unit_num: "5", num_units: "18"}
+					],	
+					cavalry: [ // конница
+						{unit_num: "14", num_units: "362"},
+						{unit_num: "17", num_units: "486"},
+						{unit_num: "52", num_units: "221"},
+						{unit_num: "69", num_units: "464"},
+						{unit_num: "29", num_units: "216"},
+						{unit_num: "73", num_units: "316"}
+					]
+				}
+			}],
+
+			destructions: [],
+
+			robbed: []
+		};
+
+
+		var wrapperTemp = doT.template(document.getElementById('wrappertemp').text);
+ 		var bdTemp = doT.template(document.getElementById('battledetails').text);
+
+		$('#wrapper').html(wrapperTemp(data));
+		$('#battle-details').html(bdTemp(data));
+
+	</script>
+	</body>
+</html>
